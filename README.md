@@ -96,9 +96,3 @@
 
 ## 后续计划
 逐步完成剩余阶段，优先实现语法分析和类型检查功能。
-
-<style>
-details[open] summary {
-  border-radius: 5px 5px 0 0 !important;
-}
-</style>
