@@ -47,8 +47,8 @@ pub enum Token {
 }
 
 pub fn tokenize(input: &str, line_starts: &[usize]) -> Result<Vec<(Token, String, usize)>, String> {
-    // 手动解析输入，逐字符扫描
     let mut tokens = Vec::new();
+    let mut errors = Vec::new();
     let mut pos = 0;
     
     while pos < input.len() {
@@ -64,7 +64,7 @@ pub fn tokenize(input: &str, line_starts: &[usize]) -> Result<Vec<(Token, String
             continue;
         }
         
-        // 尝试匹配各种token
+        // 尝试匹配token
         match try_match_token(&input[pos..]) {
             Some((token, text, len)) => {
                 let current_line = get_line_number(line_starts, pos);
@@ -72,17 +72,25 @@ pub fn tokenize(input: &str, line_starts: &[usize]) -> Result<Vec<(Token, String
                 pos += len;
             }
             None => {
-                // 找到错误位置和非法字符
+                // 记录错误但继续处理
                 let error_line = get_line_number(line_starts, pos);
-                let illegal_char = input[pos..].chars().next().unwrap_or(' ');
-                return Err(format!("Error type A at Line {}: Mysterious character \"{}\".", error_line, illegal_char));
+                if let Some(c) = input[pos..].chars().next() {
+                    errors.push(format!("Error type A at Line {}: Mysterious character \"{}\".", error_line, c));
+                    pos += c.len_utf8();
+                } else {
+                    break;
+                }
             }
         }
     }
     
-    Ok(tokens)
+    if errors.is_empty() {
+        Ok(tokens)
+    } else {
+        // 返回所有错误信息
+        Err(errors.join("\n"))
+    }
 }
-
 // 跳过空白字符
 fn skip_whitespace(input: &str) -> Option<usize> {
     let mut len = 0;
@@ -100,30 +108,26 @@ fn skip_whitespace(input: &str) -> Option<usize> {
 fn skip_comments(input: &str) -> Option<usize> {
     // 行注释
     if input.starts_with("//") {
-        let mut len = 2;
-        for c in input[2..].chars() {
-            len += c.len_utf8();
-            if c == '\n' {
-                break;
-            }
+        if let Some(end) = input.find('\n') {
+            return Some(end + 1);
         }
-        return Some(len);
+        return Some(input.len());
     }
     
     // 块注释
     if input.starts_with("/*") {
-        let mut len = 2;
+        let mut end = 2;
         let mut chars = input[2..].chars();
         let mut prev_char = '\0';
         
         while let Some(c) = chars.next() {
-            len += c.len_utf8();
+            end += c.len_utf8();
             if prev_char == '*' && c == '/' {
                 break;
             }
             prev_char = c;
         }
-        return Some(len);
+        return Some(end);
     }
     
     None
@@ -171,13 +175,16 @@ fn match_keyword(input: &str) -> Option<(Token, usize)> {
     
     for (kw, token) in keywords.iter() {
         if input.starts_with(kw) {
-            // 确保关键字后面不是字母数字或下划线（避免将"intx"识别为"int"）
-            if let Some(next_char) = input[kw.len()..].chars().next() {
-                if next_char.is_alphanumeric() || next_char == '_' {
-                    continue;
+            let kw_len = kw.len();
+            // 检查关键字后是否跟着非标识符字符
+            if let Some(next_char) = input[kw_len..].chars().next() {
+                if !next_char.is_alphanumeric() && next_char != '_' {
+                    return Some((token.clone(), kw_len));
                 }
+            } else {
+                // 关键字在文件末尾
+                return Some((token.clone(), kw_len));
             }
-            return Some((token.clone(), kw.len())); // 使用 clone() 而不是引用
         }
     }
     
@@ -214,10 +221,11 @@ fn match_identifier(input: &str) -> Option<usize> {
 fn match_number(input: &str) -> Option<(i64, usize)> {
     // 十六进制
     if input.starts_with("0x") || input.starts_with("0X") {
+        let hex_str = &input[2..];
         let mut len = 2;
         let mut value = 0;
         
-        for c in input[2..].chars() {
+        for c in hex_str.chars() {
             if let Some(digit) = c.to_digit(16) {
                 value = value * 16 + digit as i64;
                 len += c.len_utf8();
@@ -231,10 +239,11 @@ fn match_number(input: &str) -> Option<(i64, usize)> {
     
     // 八进制
     if input.starts_with('0') {
+        let oct_str = &input[1..];
         let mut len = 1;
         let mut value = 0;
         
-        for c in input[1..].chars() {
+        for c in oct_str.chars() {
             if let Some(digit) = c.to_digit(8) {
                 value = value * 8 + digit as i64;
                 len += c.len_utf8();
