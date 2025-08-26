@@ -1,0 +1,52 @@
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+COMMENT = _{ line_comment | block_comment }
+line_comment = { "//" ~ (!"\n" ~ ANY)* ~ ("\n" | EOI) }
+block_comment = { "/*" ~ (!"*/" ~ ANY)* ~ "*/" }
+
+CONST = { "const" }
+INT = { "int" }
+VOID = { "void" }
+IF = { "if" }
+ELSE = { "else" }
+WHILE = { "while" }
+BREAK = { "break" }
+CONTINUE = { "continue" }
+RETURN = { "return" }
+
+PLUS = { "+" }
+MINUS = { "-" }
+MULT = { "*" }
+DIV = { "/" }
+MOD = { "%" }
+ASSIGN = { "=" }
+EQ = { "==" }
+NEQ = { "!=" }
+LT = { "<" }
+GT = { ">" }
+LE = { "<=" }
+GE = { ">=" }
+NOT = { "!" }
+AND = { "&&" }
+OR = { "||" }
+
+LPAREN = { "(" }
+RPAREN = { ")" }
+LBRACE = { "{" }
+RBRACE = { "}" }
+L_BRACKT = { "[" }
+R_BRACKT = { "]" }
+COMMA = { "," }
+SEMICOLON = { ";" }
+
+IDENTIFIER = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+DECIMAL = @{ ('1'..'9') ~ ASCII_DIGIT* | "0" }
+OCTAL = @{ "0" ~ ('0'..'7')+ }
+HEXADECIMAL = @{ ("0x" | "0X") ~ ASCII_HEX_DIGIT+ }
+
+tokens = { SOI ~ (token ~ WHITESPACE* )* ~ EOI }
+token = { 
+    CONST | INT | VOID | IF | ELSE | WHILE | BREAK | CONTINUE | RETURN |
+    PLUS | MINUS | MULT | DIV | MOD | ASSIGN | EQ | NEQ | LT | GT | LE | GE | NOT | AND | OR |
+    LPAREN | RPAREN | LBRACE | RBRACE | L_BRACKT | R_BRACKT | COMMA | SEMICOLON |
+    IDENTIFIER | DECIMAL | OCTAL | HEXADECIMAL
+}
