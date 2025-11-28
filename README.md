@@ -1,98 +1,128 @@
-# Sysy 编译器开发进度
+# SysY 编译器 🔥
 
-> 使用 Rust 语言实现的 Sysy 编译器项目
+> 用 Rust 从零手写的编译器，能跑就行（bushi
 
-<div style="background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); padding: 20px; border-radius: 10px; color: white; margin-bottom: 20px;">
-  <h2 style="color: white; margin-top: 0;">总体进度</h2>
-  <div style="background: rgba(255, 255, 255, 0.2); border-radius: 10px; height: 20px; margin: 10px 0;">
-    <div style="background: white; width: 33.3%; height: 100%; border-radius: 10px; display: flex; align-items: center; justify-content: flex-end;">
-      <span style="color: #1a2a6c; padding-right: 10px; font-weight: bold;">33.3%</span>
-    </div>
-  </div>
-  <p>已完成 2/6 个阶段</p>
-</div>
+## 进度条
 
-## 项目阶段
+```
+[████████████████░░░░░░░░] 66.7% (4/6)
+```
 
-<details open>
-<summary style="cursor: pointer; background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;">
-✅ LAB0：环境配置 (已完成)
-</summary>
-<div style="background-color: #f9f9f9; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 10px;">
-<p>已完成 Rust 开发环境配置，包括：</p>
-<ul>
-<li>Rust 工具链安装</li>
-<li>项目结构初始化</li>
-<li>必要的依赖配置</li>
-<li>开发环境测试</li>
-</ul>
-</div>
-</details>
+**当前状态**: 能把 SysY 代码编译到 IR 了！
 
-<details open>
-<summary style="cursor: pointer; background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;">
-✅ LAB1：词法分析 (已完成)
-</summary>
-<div style="background-color: #f9f9f9; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 10px;">
-<p>已完成词法分析器实现，包括：</p>
-<ul>
-<li>Token 类型定义</li>
-<li>词法解析逻辑</li>
-<li>错误处理机制</li>
-<li>单元测试覆盖</li>
-</ul>
-</div>
-</details>
+## 已经干完的事
 
-<details>
-<summary style="cursor: pointer; background-color: #f44336; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;">
-❌ LAB2：语法分析 (未完成)
-</summary>
-<div style="background-color: #f9f9f9; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 10px;">
-<p>计划实现语法分析器，将词法单元转换为抽象语法树(AST)</p>
-</div>
-</details>
+### ✅ 词法分析 - 搞定
+把源代码切成一个个 token，支持各种数字格式（十进制、八进制、十六进制），注释也能识别。
+- 手写的词法分析器，没用什么自动生成工具
+- 能认出所有关键字和运算符
+- 错误提示还挺友好的
 
-<details>
-<summary style="cursor: pointer; background-color: #f44336; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;">
-❌ LAB3：类型检查 (未完成)
-</summary>
-<div style="background-color: #f9f9f9; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 10px;">
-<p>计划实现类型检查系统，确保程序语义正确性</p>
-</div>
-</details>
+### ✅ 语法分析 - 搞定  
+手写递归下降 Parser，没啥好说的。
+- 运算符优先级用爬升法处理
+- if/while/for 这些控制流都支持
+- 数组、函数该有的都有
 
-<details>
-<summary style="cursor: pointer; background-color: #f44336; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;">
-❌ LAB4：中间代码生成 (未完成)
-</summary>
-<div style="background-color: #f9f9f9; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 10px;">
-<p>计划实现中间代码生成器，将AST转换为中间表示(IR)</p>
-</div>
-</details>
+### ✅ 语义检查 - 搞定
+确保代码写得没毛病。
+- 作用域管理
+- 类型检查（整型、数组、函数）
+- 未定义变量检查
+- 函数参数匹配
 
-<details>
-<summary style="cursor: pointer; background-color: #f44336; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;">
-❌ LAB5：RISC-V 目标代码生成和寄存器分配 (未完成)
-</summary>
-<div style="background-color: #f9f9f9; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 10px;">
-<p>计划实现目标代码生成器，将IR转换为RISC-V汇编代码</p>
-</div>
-</details>
+### ✅ IR 生成 - 刚搞完！
+把 AST 转成类似 LLVM IR 的中间表示。
+- 支持所有语法特性
+- CFG（控制流图）自动构建
+- SSA 形式（Phi 节点啥的）
+- 输出可读性还行
 
-<details>
-<summary style="cursor: pointer; background-color: #f44336; color: white; padding: 10px; border-radius: 5px; margin: 5px 0;">
-❌ LAB6：中间代码优化 (未完成)
-</summary>
-<div style="background-color: #f9f9f9; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 10px;">
-<p>计划实现中间代码优化器，提高生成代码的性能</p>
-</div>
-</details>
+### ⏳ 代码生成 - 还没动
+需要生成 RISC-V 汇编，加油ing...
+
+### ⏳ 代码优化 - 还没动  
+各种优化 Pass，慢慢来吧...
+
+## 快速开始
+
+```bash
+# 编译
+cargo build --release
+
+# 跑个测试
+cargo run test_simple.sy --ir
+
+# 看 IR
+cargo run test.sy --ir
+
+# 看 SSA 形式
+cargo run test.sy --ssa
+```
+
+## 代码结构
+
+```
+src/
+├── tokens.rs       # 词法分析
+├── ast.rs          # AST 定义
+├── parser.rs       # 语法分析
+├── semantic.rs     # 语义检查
+├── type_checker.rs # 类型检查
+├── ir.rs           # IR 定义
+├── ir_gen.rs       # IR 生成
+└── ssa.rs          # SSA 构造
+```
+
+## 测试用例
+
+```bash
+test_simple.sy     # 基本运算
+test_array.sy      # 数组操作
+test_func.sy       # 函数调用
+test_if_while.sy   # 控制流
+```
+
+全部测试都过了 ✓
 
 ## 技术栈
-- **语言**: Rust
-- **构建工具**: Cargo
-- **测试框架**: Rust 内置测试框架
 
-## 后续计划
-逐步完成剩余阶段，优先实现语法分析和类型检查功能。
+- **语言**: Rust (因为快 + 类型安全)
+- **依赖**: 基本只用了标准库 + pest_derive
+- **代码量**: 4000+ 行
+
+## 一些坑
+
+1. **SSA 构造真的难**  
+   支配树和支配边界的算法看了好几遍才懂，变量重命名还没完全搞定
+
+2. **类型系统有点乱**  
+   现在很多地方直接用 i32，后面需要重构
+
+3. **IR 的 load/store 太多了**  
+   需要 mem2reg 优化才能变成真正的寄存器操作
+
+## 接下来要做啥
+
+1. 完善 SSA 的变量重命名
+2. 实现一些基本优化（常量折叠、死代码消除）
+3. 开始搞 RISC-V 代码生成
+4. 寄存器分配（据说很难）
+
+## 参考资料
+
+- LLVM IR 文档（抄的挺多的）
+- 龙书（经典）
+- 虎书（SSA 那章）
+- 还有 Stack Overflow（懂的都懂）
+
+## License
+
+随便用，MIT
+
+---
+
+**2025.11.28 更新**  
+刚刚把 IR 生成搞完了，感觉还行。下一步准备直接怼代码生成，或者先优化一波 IR（还没想好）。
+
+总之，能跑就是胜利 🎉
